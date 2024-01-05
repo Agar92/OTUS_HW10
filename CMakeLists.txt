@@ -1,68 +1,46 @@
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.15)
 
-project(server VERSION 0.0.1)
+project(bulk_server VERSION 0.0.1)
 
-find_package(Threads REQUIRED)
-find_package(Boost REQUIRED system)
+set(CMAKE_CXX_STANDARD 17)
 
-add_library(async SHARED
-  async.h
-  handler.cpp
-  handler.h
-  server.h
+find_package(Boost COMPONENTS system REQUIRED)
+find_package(Threads)
+include_directories(${Boost_INCLUDE_DIR})
+
+include_directories("${PROJECT_SOURCE_DIR}/include")
+include_directories(${CMAKE_BINARY_DIR})
+
+add_library(threadpool src/threadpool.cpp include/threadpool.h)
+set_property(TARGET threadpool PROPERTY POSITION_INDEPENDENT_CODE ON)
+
+add_library(logger src/logger.cpp include/logger.h)
+set_property(TARGET logger PROPERTY POSITION_INDEPENDENT_CODE ON)
+
+add_library(command src/command_processor.cpp src/command_accumulator.cpp
+        include/command_processor.h include/command_accumulator.h src/server_entry_point.cpp src/server.cpp)
+set_property(TARGET command PROPERTY POSITION_INDEPENDENT_CODE ON)
+
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    target_link_libraries(logger pthread)
+    target_link_libraries(threadpool pthread)
+endif ()
+
+add_library(async SHARED src/async.cpp include/async.h)
+set_property(TARGET async PROPERTY POSITION_INDEPENDENT_CODE ON)
+target_link_libraries(async command logger threadpool)
+
+add_executable(bulk_server src/server_entry_point.cpp src/server.cpp include/server.h)
+
+target_link_libraries(bulk_server
+        async
+        ${Boost_LIBRARIES}
+        ${CMAKE_THREAD_LIBS_INIT}
 )
 
-add_executable(server main.cpp)
+install(TARGETS async LIBRARY DESTINATION lib)
+install(TARGETS bulk_server RUNTIME DESTINATION bin)
 
-set_target_properties(async PROPERTIES
-  CXX_STANDARD 20
-  CXX_STANDARD_REQUIRED ON
-  PUBLIC_HEADER async.hpp
-)
-
-set_target_properties(server PROPERTIES
-  CXX_STANDARD 20
-  CXX_STANDARD_REQUIRED ON
-)
-
-target_include_directories(async
-  PRIVATE "${CMAKE_BINARY_DIR}" .
-)
-
-target_link_libraries(async
-	${CMAKE_THREAD_LIBS_INIT} boost_system
-)
-
-target_include_directories(server
-  PRIVATE "${CMAKE_BINARY_DIR}" .
-)
-
-target_link_libraries(server PRIVATE
-  async
-)
-
-if (MSVC)
-  target_compile_options(async PRIVATE
-    /W4
-  )
-  target_compile_options(server PRIVATE
-    /W4
-  )
-else ()
-  target_compile_options(async PRIVATE
-    -Wall -Wextra -pedantic -lpthread
-  )
-  target_compile_options(server PRIVATE
-    -Wall -Wextra -pedantic -lpthread
-  )
-endif()
-
-include(GNUInstallDirs)
-install(TARGETS server RUNTIME DESTINATION bin)
-install(TARGETS async
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
 set(CPACK_GENERATOR DEB)
 set(CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
 set(CPACK_PACKAGE_VERSION_MINOR "${PROJECT_VERSION_MINOR}")
