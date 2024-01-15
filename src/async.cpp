@@ -1,36 +1,34 @@
-#include "async.h"
-#include "command_processor.h"
+#include <async.h>
+#include <processor.h>
 
 namespace async {
 
     handle_t connect(std::size_t bulk) {
         handle_t bulk_handle;
-        bulk_handle = impl::CommandProcessorsRouter::get_router().create_new_processor(bulk);
+        bulk_handle = CommandProcessorsRouter::get_router().create_new_processor(bulk);
         return bulk_handle;
     }
 
     void receive(handle_t handle, const char *data, std::size_t size) {
-        impl::CommandProcessorsRouter::get_router().run_processor(handle, data, size);
+        CommandProcessorsRouter::get_router().run_processor(handle, data, size);
     }
 
     void disconnect(handle_t handle) {
-        impl::CommandProcessorsRouter::get_router().remove_processor(handle);
+        CommandProcessorsRouter::get_router().remove_processor(handle);
     }
 
     void reserve_threads_for_tasks(std::size_t num_threads) {
-        impl::CommandProcessorsRouter::get_router().reserve_threads(num_threads);
+        CommandProcessorsRouter::get_router().reserve_threads(num_threads);
     }
 
     void stop_all_tasks() {
-        impl::CommandProcessorsRouter::get_router().stop_thread_pool();
+        CommandProcessorsRouter::get_router().stop_thread_pool();
     }
 
     void resume_tasks() {
-        impl::CommandProcessorsRouter::get_router().resume_thread_pool();
+        CommandProcessorsRouter::get_router().resume_thread_pool();
     }
-}
 
-namespace async::impl {
     CommandProcessorsRouter::CommandProcessorsRouter() {
         auto hardware_threads = std::thread::hardware_concurrency();
         if (hardware_threads > 0)

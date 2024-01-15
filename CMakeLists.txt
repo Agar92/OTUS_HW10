@@ -17,8 +17,8 @@ set_property(TARGET threadpool PROPERTY POSITION_INDEPENDENT_CODE ON)
 add_library(logger src/logger.cpp include/logger.h)
 set_property(TARGET logger PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-add_library(command src/command_processor.cpp src/command_accumulator.cpp
-        include/command_processor.h include/command_accumulator.h src/server_entry_point.cpp src/server.cpp)
+add_library(command src/processor.cpp src/commands.cpp
+        include/processor.h include/commands.h src/main.cpp src/server.cpp)
 set_property(TARGET command PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -30,7 +30,7 @@ add_library(async SHARED src/async.cpp include/async.h)
 set_property(TARGET async PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(async command logger threadpool)
 
-add_executable(bulk_server src/server_entry_point.cpp src/server.cpp include/server.h)
+add_executable(bulk_server src/main.cpp src/server.cpp include/server.h)
 
 target_link_libraries(bulk_server
         async

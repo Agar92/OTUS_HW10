@@ -1,6 +1,6 @@
 #include <iostream>
 #include <sstream>
-#include "command_processor.h"
+#include <processor.h>
 
 void GlobalCommandProcessor::process_1_command(const std::string& current_command) {
     if (current_command == "{" or current_command == "}")

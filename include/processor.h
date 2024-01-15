@@ -3,7 +3,7 @@
 #include <iostream>
 #include <mutex>
 #include "logger.h"
-#include "command_accumulator.h"
+#include "commands.h"
 
 
 class GlobalCommandProcessor {
@@ -24,7 +24,7 @@ private:
     std::mutex data_mutex;
     int num_commands_in_bulk = 0;
     int total_commands = 0;
-    CommandAccumulator accumulator;
+    Commands accumulator;
     GlobalCommandProcessor() = default;
     ~GlobalCommandProcessor();
 };
@@ -44,7 +44,7 @@ public:
 private:
     void process_1_command(const std::string& command);
 
-    CommandAccumulator accumulator;
+    Commands accumulator;
     std::mutex data_mutex;
     std::mutex process_mutex;
     std::string buffer;

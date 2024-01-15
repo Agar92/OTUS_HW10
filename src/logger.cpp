@@ -132,9 +132,8 @@ void Logger::resume_work() {
 std::string Logger::get_random_string(int len) {
     const std::string alphanum = "0123456789abcdefghijklmnopqrstuvwxyz";
     std::string result;
-    for (int i = 0; i < len; i++) {
+    for (int i = 0; i < len; i++)
         result += alphanum[rand() % alphanum.size()];
-    }
     return result;
 }
 

@@ -1,9 +1,9 @@
 #include <fstream>
 #include <sstream>
-#include "command_accumulator.h"
+#include "commands.h"
 #include "logger.h"
 
-void CommandAccumulator::add_command(const std::string& command) {
+void Commands::add_command(const std::string& command) {
     if (empty()) {
         using namespace std::chrono;
         bulk_first_command_time = duration_cast<seconds>(system_clock::now().time_since_epoch()).count();
@@ -11,11 +11,11 @@ void CommandAccumulator::add_command(const std::string& command) {
     commands.emplace_back(command);
 }
 
-void CommandAccumulator::clear() {
+void Commands::clear() {
     commands.clear();
 }
 
-void CommandAccumulator::log_commands() {
+void Commands::log_commands() {
     if (empty()) return; // log nothing
     std::ostringstream ss;
     ss << "bulk: ";
@@ -29,15 +29,15 @@ void CommandAccumulator::log_commands() {
     Logger::get_logger().log_to_file(base_file_name, ss.str(), size());
 }
 
-void CommandAccumulator::log_commands_and_clear() {
+void Commands::log_commands_and_clear() {
     log_commands();
     clear();
 }
 
-size_t CommandAccumulator::size() {
+size_t Commands::size() {
     return commands.size();
 }
 
-bool CommandAccumulator::empty() {
+bool Commands::empty() {
     return commands.empty();
 }

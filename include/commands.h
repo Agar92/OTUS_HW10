@@ -7,9 +7,9 @@
 #include <thread>
 #include <filesystem>
 
-class CommandAccumulator {
+class Commands {
 public:
-    CommandAccumulator(){std::filesystem::create_directory("log");}
+    Commands(){std::filesystem::create_directory("log");}
     void add_command(const std::string& command);
     void clear();
     void log_commands();

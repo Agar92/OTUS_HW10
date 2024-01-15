@@ -3,12 +3,12 @@
 #include <cstddef>
 #include <unordered_map>
 #include <mutex>
-#include "command_processor.h"
-#include "threadpool.h"
+#include <processor.h>
+#include <threadpool.h>
 
 namespace async {
 
-    using handle_t = void *;
+    using handle_t = void*;
 
     handle_t connect(std::size_t bulk);
 
@@ -20,9 +20,6 @@ namespace async {
 
     void stop_all_tasks();
 
-}
-
-namespace async::impl {
     class CommandProcessorsRouter {
     public:
         static CommandProcessorsRouter& get_router() {
